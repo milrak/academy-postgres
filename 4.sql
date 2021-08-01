@@ -1,5 +1,3 @@
-select * from sale_item si 
-
 -- criando coluna
 alter table sale_item add column unit_price numeric;
 
@@ -7,7 +5,7 @@ alter table sale_item add column unit_price numeric;
 --script para preencher o valor
 do
 $$
-declare 
+declare
 	produto record;
 	cmd_update varchar default '';
 begin
@@ -20,9 +18,9 @@ end
 $$
 
 --trigger para preencher o campo em novas compras.
-create or replace function fn_insert_unit_price_sale_item() returns trigger as 
+create or replace function fn_insert_unit_price_sale_item() returns trigger as
 $$
-begin 
+begin
 	new.unit_price := (select sale_price from product where id=new.id_product);
 return new;
 end
@@ -31,16 +29,6 @@ language plpgsql;
 
 -- vinculando gatinho
 create trigger tg_insert_unit_price_sale_item
-	before insert on sale_item 
+	alter insert on sale_item
 	for each row
 	execute function fn_insert_unit_price_sale_item();
-
-
---Test
-INSERT INTO public.sale_item
-(id_sale, id_product, quantity, created_at, modified_at, active)
-VALUES(500001, 1, 1, now(), now(), true);
-
-select * from sale_item si where id=500001;
-
-	
